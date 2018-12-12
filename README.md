@@ -22,40 +22,62 @@ import { withStyles } from '@material-ui/core/styles';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
 
-const styles = theme => ({
+const styles = {
     root: {
         display: 'flex',
         flexDirection: 'column',
         height: '100%'
     }
-});
+};
 
 function App(props) {
 
     const classes = props.classes;
+    const theme = props.theme;
 
-    const [scroll,setScroll] = useState(0);
+    const [direction, setDirection] = useState('down');
+    const [scrollDelta, setScrollDelta] = useState(0);
+    const [bottomReached, setBottomReached] = useState(false);
 
+    const scrollChange = (d,sd) => {
+        setDirection(d);
+        setScrollDelta(sd);
+    }
+
+    const showBar = () => {
+        return (direction==='down' && scrollDelta<56) || direction==='up' || bottomReached;
+    }
+
+    const title = "Scrollable Appbars";
     const list = Array.from(Array(100).keys());
     
     return (
         <div className={classes.root}>
-            <TopAppbar static show={scroll<56}
+            <TopAppbar
+				static
+				show={showBar()}
                 elevation={0}
-                title="Example"
-                color="#f44336">
+                title={title}
+                color={theme.palette.primary.main}>
                 <IconButton color="inherit">
                     <Icon>search</Icon>
                 </IconButton>
             </TopAppbar>
 
-            <Scroller paddingTop={56} className={classes.scroller} onScroll={top => setScroll(top)}>
+            <Scroller
+                paddingTop={56}
+                paddingBottom={56}
+				onScroll={(d,sd) => scrollChange(d,sd)}
+                onBottomReached={bottom => setBottomReached(bottom)}>
                 {list.map(key => <div>Row {key}</div>)}
             </Scroller>
             
-            <BottomAppbar static inset show={scroll<56}
-                color="#f44336"
-                fabColor="#3f51b5"
+            <BottomAppbar
+				static
+				inset
+				show={showBar()}
+                color={theme.palette.primary.main}
+                fabColor={theme.palette.secondary.main}
                 fabIcon={<Icon>add</Icon>}
                 fabClick={() => alert("FAB clicked")}
                 menuClick={() => alert("Menu button clicked")}>
@@ -67,7 +89,7 @@ function App(props) {
     );
 }
 
-export default withStyles(styles)(App);
+export default withStyles(styles,{withTheme: true})(App);
 ```
 
 ## License
